@@ -1,0 +1,303 @@
+{% comment %}
+  This template will be automatically generated for you if the file doesn't exist,
+  but where's the fun in having no control? Define your layout below.
+
+  The 'layout settings.customer_layout' line is inserted at the top of every customer account template.
+  Your theme's settings determine to use the 'default' or 'theme' customer templates.
+  More info:
+      - http://www.tetchi.ca/shopify-theme-from-scratch-part-11/
+
+  Template note:
+      - All IDs on this template are required to make the forms submit properly
+      - There are two instances of inline JS below. Best practices advise separating this into an external JS file.
+{% endcomment %}
+
+{{ 'customer.css' | asset_url | stylesheet_tag }}
+
+<div class="account-page login-page">
+  <div class="container">
+    <div class="halo-page-header">
+      {% render 'breadcrumb' %}
+      <h1 class="page-header">
+        {{ 'customer.login_page.title' | t }}
+      </h1>
+    </div>
+    <div class="halo-page-content">
+      <div class="login-row clearfix">
+        <div class="login-rowItem login-rowLeft">
+          <div class="login-item" id="phone-form">
+            <h2 class="halo-page-title page-subheader text-left">
+              {{ 'customer.login_page.sign_in' | t }}
+            </h2>
+            <div class="halo-page-wrapper">
+              <div class="login-text">
+                {{ 'customer.login_page.text' | t }}
+              </div>
+              {%- form 'customer_login', class: 'customer-login-form' -%}
+                {%- if form.errors -%}
+                  {%- assign message = form.errors.messages.form -%}
+                  <div class="form-message">
+                    <div class="alertBox alertBox--error">
+                      <p class="alertBox-message">
+                        {{ message }}
+                      </p>
+                    </div>
+                  </div>
+                {%- endif -%}
+                <div class="form-field{% if form.errors contains "email" %} form-field--error{% endif %}">
+                  <label class="form-label" for="customer-phone">
+                    {{ 'customer.login_page.phone' | t }}
+                    <em>*</em>
+                  </label>
+                  <input
+                    class="form-input form-input-placeholder"
+                    type="phone"
+                    value="+998"
+                    name="phone"
+                    autocomplete="phone"
+                    autocorrect="off"
+                    autocapitalize="off"
+                    id="customer-phone"
+                    {% if form.errors contains 'form' %}
+                      aria-invalid="true"
+                    {% endif %}
+                    placeholder=""
+                    aria-required="true"
+                    aria-invalid="true"
+                    required
+                  >
+                  <span class="login-text" id="invalid-format" style="display: none"
+                    >Введите корректный формат номера телефона</span
+                  >
+                  <span class="login-text" id="account-not-found" style="display: none"
+                    >По указанному номеру телефона профиль не найден. Пройдите регистрацию.</span
+                  >
+                </div>
+                <div class="form-actions">
+                  <div class="col-auto" style="display: none" id="code-loader">
+                    <div class="lds-ring">
+                      <div></div>
+                      <div></div>
+                      <div></div>
+                      <div></div>
+                    </div>
+                  </div>
+                  <button type="button" onclick="validatePhone()" class="button button-2">
+                    {{ 'customer.login_page.get_code' | t }}
+                  </button>
+                </div>
+              {%- endform -%}
+            </div>
+          </div>
+          <div class="login-item" id="code-form" style="display: none">
+            <div class="form-field{% if form.errors contains "password" %} form-field--error{% endif %}">
+              <label class="form-label" for="customer-code">
+                {{ 'customer.register.code' | t }}
+                <em>*</em>
+              </label>
+              <input
+                class="form-input form-input-placeholder{% if form.errors contains "password" %} error{% endif %}"
+                type="text"
+                name="code"
+                id="customer-code"
+                aria-required="true"
+                placeholder=""
+                required
+              >
+            </div>
+            <span class="login-text" id="code-error" style="display: none">Введен неправильный код</span>
+            <div class="form-actions">
+              <div class="col-auto" style="display: none" id="register-code-loader">
+                <div class="lds-ring">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+              </div>
+              <button type="button" onclick="sendCode()" class="button button--primary">
+                {{ 'customer.register.sign_in' | t }}
+              </button>
+            </div>
+          </div>
+          <div class="login-item" id="login" style="display: none">
+            <h2 class="halo-page-title page-subheader text-left">
+              {{ 'customer.login_page.sign_in' | t }}
+            </h2>
+            <div class="halo-page-wrapper">
+              <div class="login-text">
+                {{ 'customer.login_page.text' | t }}
+              </div>
+              {% comment %}
+                If a user has successfully requested a new password, the form.posted_successfully? variable
+                is set to true within the 'recover_customer_password' form only. Within that form you'll see
+                us assign a variable 'reset_success' to true, which is used in JS to show our success message.
+              {% endcomment %}
+              {%- if recover_success == true -%}
+                <div class="login-message" id="resetSuccess">
+                  <div class="alertBox alertBox--success">
+                    <p class="alertBox-message">{{ 'customer.recover_password.success' | t }}</p>
+                  </div>
+                </div>
+              {%- endif -%}
+              {% comment %}
+                This form must use 'customer_login'
+              {% endcomment %}
+              {%- form 'customer_login', class: 'customer-login-form' -%}
+                {%- if form.errors -%}
+                  {%- assign message = form.errors.messages.form -%}
+                  <div class="form-message">
+                    <div class="alertBox alertBox--error">
+                      <p class="alertBox-message">
+                        {{ message }}
+                      </p>
+                    </div>
+                  </div>
+                {%- endif -%}
+                <div class="form-field{% if form.errors contains "email" %} form-field--error{% endif %}">
+                  <label class="form-label" for="CustomerEmail">
+                    {{ 'customer.login_page.email' | t }}
+                    <em>*</em>
+                  </label>
+                  <input
+                    class="form-input form-input-placeholder{% if form.errors contains "email" %} error{% endif %}"
+                    type="email"
+                    value=""
+                    name="customer[email]"
+                    autocomplete="email"
+                    autocorrect="off"
+                    autocapitalize="off"
+                    id="CustomerEmail"
+                    {% if form.errors contains 'form' %}
+                      aria-invalid="true"
+                    {% endif %}
+                    placeholder=""
+                    aria-required="true"
+                    aria-invalid="true"
+                    required
+                  >
+                </div>
+                {%- if form.password_needed -%}
+                  <div class="form-field{% if form.errors contains "password" %} form-field--error{% endif %}">
+                    <label class="form-label" for="CustomerPassword">
+                      {{ 'customer.login_page.password' | t }}
+                      <em>*</em>
+                    </label>
+                    <input
+                      class="form-input form-input-placeholder{% if form.errors contains "password" %} error{% endif %}"
+                      type="password"
+                      value=""
+                      name="customer[password]"
+                      id="CustomerPassword"
+                      autocomplete="current-password"
+                      {% if form.errors contains 'form' %}
+                        aria-invalid="true"
+                      {% endif %}
+                      aria-required="true"
+                      required
+                    >
+                  </div>
+                {%- endif -%}
+                <div class="form-actions">
+                  <button type="submit" id="login-submit" class="button button-2">
+                    {{ 'customer.login_page.title' | t }}
+                  </button>
+                </div>
+              {%- endform -%}
+            </div>
+          </div>
+        </div>
+        <div class="login-rowItem login-rowRight" style="padding-bottom: 0px">
+          <div class="login-item">
+            <h2 class="halo-page-title page-subheader text-left">
+              {{ 'customer.register.register' | t }}
+            </h2>
+            <div class="halo-page-wrapper">
+              <div class="login-text">
+                {{ 'customer.register.text' | t }}
+              </div>
+              <div class="form-actions">
+                <a href="/account/register" class="button button--primary">{{ 'customer.register.submit' | t }}</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  let customer = {phone: null, code: null};
+  const phoneForm = document.getElementById('phone-form');
+  const codeForm = document.getElementById('code-form');
+  const invalidFormat = document.getElementById('invalid-format');
+  const accountNotFound = document.getElementById('account-not-found');
+  const codeLoader = document.getElementById('code-loader');
+  const customerEmail = document.getElementById('CustomerEmail');
+  const customerPassword = document.getElementById('CustomerPassword');
+  const codeError = document.getElementById('code-error');
+  const loginSubmit = document.getElementById('login-submit');
+
+  async function postData(url = '', data = {}) {
+    const response = await fetch(url, {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      }).then(response => {
+        if (response.ok) {
+          return response.json();
+        }
+      })
+      .then((data) => {
+        return data;
+      });
+
+    return await response;
+  }
+
+  async function validatePhone() {
+    let phone = document.getElementById('customer-phone').value.replace(/\s+/g, '');
+    if (phone && phone.match(/^\+?998[0-9]{2}[0-9]{7}$/)) {
+      codeLoader.style.display = 'block';
+      customer.phone = phone;
+      const response = await postData('https://salonchi.uz/apps/salonchi/customer/login', {
+        phone: phone
+      });
+      if (response) {
+        phoneForm.style.display = 'none';
+        codeForm.style.display = 'block';
+        invalidFormat.style.display = 'none';
+        accountNotFound.style.display = 'none';
+        codeLoader.style.display = 'none';
+      } else {
+        invalidFormat.style.display = 'none';
+        accountNotFound.style.display = 'block';
+        codeLoader.style.display = 'none';
+      }
+    } else {
+      invalidFormat.style.display = 'block';
+    }
+  }
+
+  async function sendCode() {
+    let code = document.getElementById('customer-code').value;
+    if (code.length == 6) {
+      codeLoader.style.display='block';
+      const response = await postData('https://salonchi.uz/apps/salonchi/customer/login/attempt', {phone: customer.phone, code: code});
+      if (response) {
+        customerEmail.value = response.data.email;
+        customerPassword.value = response.data.password;
+        codeError.style.display='none';
+        loginSubmit.click();
+      } else {
+        codeLoader.style.display = 'none';
+        codeError.style.display = 'block';
+      }
+    } else {
+      codeError.style.display='block';
+      codeLoader.style.display='none';
+    }
+  }
+</script>

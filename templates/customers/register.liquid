@@ -1,0 +1,295 @@
+{% comment %}
+  This template will be automatically generated for you if the file doesn't exist,
+  but where's the fun in having no control? Define your layout below.
+
+  The 'layout settings.customer_layout' line is inserted at the top of every customer account template.
+  Your theme's settings determine to use the 'default' or 'theme' customer templates.
+  More info:
+  - http://www.tetchi.ca/shopify-theme-from-scratch-part-11/
+{% endcomment %}
+
+{{ 'customer.css' | asset_url | stylesheet_tag }}
+
+<div class="account-page register-page">
+  <div class="container">
+    <div class="halo-page-header">
+      {% render 'breadcrumb' %}
+      <h1 class="page-header">{{ 'customer.register.title' | t }}</h1>
+    </div>
+    <div class="halo-page-content">
+      <div class="login-item" id="register-form">
+        <div class="halo-page-wrapper">
+          <div class="login-text">
+            {{ 'customer.register.text' | t }}
+          </div>
+          {%- form 'create_customer', class: 'create-customer-form' -%}
+            <div class="form-field{% if form.errors contains "first_name" %} form-field--error{% endif %}">
+              <label class="form-label" for="RegisterForm-FirstName">
+                {{ 'customer.register.first_name' | t }}
+                <em>*</em>
+              </label>
+              <input
+                class="form-input form-input-placeholder{% if form.errors contains "first_name" %} error{% endif %}"
+                type="text"
+                name="first_name"
+                id="loginFirstName"
+                {% if form.first_name %}
+                  value="{{ form.first_name }}"
+                {% endif %}
+                autocomplete="given-name"
+                placeholder=""
+                required
+              >
+            </div>
+            <div class="form-field{% if form.errors contains "last_name" %} form-field--error{% endif %}">
+              <label class="form-label" for="RegisterForm-LastName">
+                {{ 'customer.register.last_name' | t }}
+                <em>*</em>
+              </label>
+              <input
+                class="form-input form-input-placeholder{% if form.errors contains "last_name" %} error{% endif %}"
+                type="text"
+                name="last_name"
+                id="loginLastName"
+                {% if form.last_name %}
+                  value="{{ form.last_name }}"
+                {% endif %}
+                autocomplete="family-name"
+                placeholder=""
+                required
+              >
+            </div>
+            <div class="form-field{% if form.errors contains "password" %} form-field--error{% endif %}">
+              <label class="form-label" for="password">
+                {{ 'customer.register.phone' | t }}
+                <em>*</em>
+              </label>
+              <input
+                class="form-input form-input-placeholder{% if form.errors contains "password" %} error{% endif %}"
+                type="text"
+                name="phone"
+                id="loginInputPhone"
+                value="+998"
+                aria-required="true"
+                {% if form.errors contains 'password' %}
+                  aria-invalid="true"
+                  aria-describedby="RegisterForm-phone-error"
+                {% endif %}
+                placeholder=""
+                required
+              >
+            </div>
+            <div class="form-field{% if form.errors contains "email" %} form-field--error{% endif %}">
+              <label class="form-label" for="RegisterForm-phone">
+                {{ 'customer.register.you_email' | t }}
+              </label>
+              <input
+                class="form-input form-input-placeholder{% if form.errors contains "email" %} error{% endif %}"
+                type="email"
+                name="phone"
+                id="loginInputEmail"
+                {% if form.email %}
+                  value="{{ form.email }}"
+                {% endif %}
+                spellcheck="false"
+                autocapitalize="off"
+                autocomplete="email"
+                aria-required="true"
+                {% if form.errors contains 'email' %}
+                  aria-invalid="true"
+                  aria-describedby="RegisterForm-phone-error"
+                {% endif %}
+                placeholder=""
+              >
+            </div>
+            <div class="form-actions">
+              <span id="invalid-format" style="display: none">Пожалуйста, заполните все поля *</span>
+              <span id="account-error" style="display: none"
+                >Произошла ошибка или этот номер уже зарегистрирован в Salonchi</span
+              >
+            </div>
+            <div class="form-actions">
+              <div class="col-auto" style="display: none" id="register-loader">
+                <div class="lds-ring">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+              </div>
+              <button type="button" onclick="registerUser()" class="button button--primary">
+                {{ 'customer.register.submit' | t }}
+              </button>
+            </div>
+          {%- endform -%}
+        </div>
+      </div>
+      <div class="login-item" id="code-form" style="display: none">
+        <div class="form-field{% if form.errors contains "password" %} form-field--error{% endif %}">
+          <label class="form-label" for="customer-code">
+            {{ 'customer.register.code' | t }}
+            <em>*</em>
+          </label>
+          <input
+            class="form-input form-input-placeholder{% if form.errors contains "password" %} error{% endif %}"
+            type="text"
+            name="code"
+            id="customer-code"
+            aria-required="true"
+            placeholder=""
+            required
+          >
+        </div>
+        <div class="form-actions">
+          <span id="code-error" style="display: none">Введен неправильный код</span>
+          <div class="col-auto" style="display: none" id="register-code-loader">
+            <div class="lds-ring">
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+          </div>
+          <button type="button" onclick="sendCode()" class="button button--primary">
+            {{ 'customer.register.sign_in' | t }}
+          </button>
+        </div>
+      </div>
+      <div class="d-none">
+        {%- form 'customer_login', class: 'customer-login-form' -%}
+          {%- if form.errors -%}
+            {%- assign message = form.errors.messages.form -%}
+            <div class="form-message">
+              <div class="alertBox alertBox--error">
+                <p class="alertBox-message">
+                  {{ message }}
+                </p>
+              </div>
+            </div>
+          {%- endif -%}
+          <div class="form-field{% if form.errors contains "email" %} form-field--error{% endif %}">
+            <label class="form-label" for="CustomerEmail">
+              {{ 'customer.login_page.email' | t }}
+              <em>*</em>
+            </label>
+            <input
+              class="form-input form-input-placeholder{% if form.errors contains "email" %} error{% endif %}"
+              type="email"
+              value=""
+              name="customer[email]"
+              autocomplete="email"
+              autocorrect="off"
+              autocapitalize="off"
+              id="CustomerEmail"
+              {% if form.errors contains 'form' %}
+                aria-invalid="true"
+              {% endif %}
+              placeholder=""
+              aria-required="true"
+              aria-invalid="true"
+              required
+            >
+          </div>
+          {%- if form.password_needed -%}
+            <div class="form-field{% if form.errors contains "password" %} form-field--error{% endif %}">
+              <label class="form-label" for="CustomerPassword">
+                {{ 'customer.login_page.password' | t }}
+                <em>*</em>
+              </label>
+              <input
+                class="form-input form-input-placeholder{% if form.errors contains "password" %} error{% endif %}"
+                type="password"
+                value=""
+                name="customer[password]"
+                id="CustomerPassword"
+                autocomplete="current-password"
+                {% if form.errors contains 'form' %}
+                  aria-invalid="true"
+                {% endif %}
+                aria-required="true"
+                required
+              >
+            </div>
+          {%- endif -%}
+          <div class="form-actions">
+            <button type="submit" id="login-submit" class="button button-2">
+              {{ 'customer.login_page.title' | t }}
+            </button>
+          </div>
+        {%- endform -%}
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  let customer = {phone: null, code: null};
+  const accountError = document.getElementById('account-error');
+  const loader = document.getElementById('register-loader');
+  const registerForm = document.getElementById('register-form');
+  const codeForm = document.getElementById('code-form');
+  const codeLoader = document.getElementById('register-code-loader');
+  const customerEmail = document.getElementById('CustomerEmail');
+  const customerPassword = document.getElementById('CustomerPassword');
+  const loginSubmit = document.getElementById('login-submit');
+  const codeError = document.getElementById('code-error');
+  const invalidFormat = document.getElementById('invalid-format');
+
+  async function postData(url = '', data = {}) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(data)
+    }).then(response => {if (response.ok) {return response.json();}})
+      .then((data) => {return data;});
+
+    return await response;
+  }
+
+  async function registerUser() {
+    const firstName = document.getElementById('loginFirstName').value;
+    const lastName = document.getElementById('loginLastName').value;
+    const phone = document.getElementById('loginInputPhone').value.replace(/\s+/g, '');
+    const email = document.getElementById('loginInputEmail').value;
+    if (firstName && lastName && phone && phone.match(/^\+?998[0-9]{2}[0-9]{7}$/)) {
+      loader.style.display='block';
+      customer.phone = phone;
+      const response = await postData('https://salonchi.uz/apps/salonchi/customer/register',
+                                      {first_name: firstName, last_name: lastName, phone: phone, email: email});
+      if (!response) {
+        accountError.style.display='block';
+        loader.style.display='none';
+        invalidFormat.style.display='none';
+      } else {
+        registerForm.style.display='none';
+        codeForm.style.display='block';
+        loader.style.display='none';
+        invalidFormat.style.display='none';
+      }
+    } else {
+      invalidFormat.style.display='block';
+    }
+  }
+
+  async function sendCode() {
+      let code = document.getElementById('customer-code').value;
+      if (code.length == 6) {
+        codeLoader.style.display='block';
+        const response = await postData('https://salonchi.uz/apps/salonchi/customer/login/attempt', {phone: customer.phone, code: code});
+        if (response) {
+          customerEmail.value = response.data.email;
+          customerPassword.value = response.data.password;
+          codeError.style.display='none';
+          loginSubmit.click();
+        } else {
+          codeLoader.style.display = 'none';
+          codeError.style.display = 'block';
+        }
+      } else {
+        codeError.style.display='block';
+        codeLoader.style.display='none';
+      }
+  }
+</script>
